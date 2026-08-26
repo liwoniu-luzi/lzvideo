@@ -8,6 +8,9 @@ class RecorderKeys {
   /// 自动重连
   static const autoReconnect = "autoReconnect";
 
+  /// 主播下播自动停止录制并保存
+  static const autoStopOnOffline = "auto_stop_on_offline";
+
   /// 最大缓存
   static const maxCacheMB = "maxCacheMB";
 

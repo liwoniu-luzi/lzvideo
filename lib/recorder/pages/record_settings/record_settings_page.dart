@@ -177,6 +177,12 @@ class RecordSettingsPage extends GetView<RecordSettingsController> {
                 subtitle: i18n("auto_reconnect_desc"),
                 value: controller.autoReconnect,
               ),
+              context.buildSwitchTile(
+                icon: Remix.stop_circle_line,
+                title: i18n("auto_stop_on_offline"),
+                subtitle: i18n("auto_stop_on_offline_desc"),
+                value: controller.autoStopOnOffline,
+              ),
               if (controller.autoReconnect.value)
                 context.buildSliderTile(
                   context,

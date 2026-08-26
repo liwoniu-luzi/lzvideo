@@ -418,6 +418,34 @@ class RecorderController extends GetxService {
     }
   }
 
+  bool _hasRecordedTsFiles(String? outputDir) {
+    if (outputDir == null || outputDir.isEmpty) return false;
+    try {
+      final dir = Directory(outputDir);
+      if (!dir.existsSync()) return false;
+      return dir.listSync().whereType<File>().any((f) => f.path.endsWith('.ts') && f.lengthSync() > 0);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _checkRunningTasksForOffline() async {
+    final runningTasks = tasks.where((t) => t.status == RecordStatus.running).toList();
+    for (final task in runningTasks) {
+      try {
+        final room = await Sites.of(task.platform).liveSite.getRoomDetail(roomId: task.roomId, platform: task.platform);
+        task.updateFromRoom(room);
+        final isLiving = room.liveStatus == LiveStatus.live || room.status == true || room.isRecord == true;
+        if (!isLiving) {
+          developer.log('Detected anchor offline for running task: ${task.taskId}', name: 'RecorderController');
+          task.wasStoppedByUser = true;
+          await ffmpeg.stop(task.taskId);
+          ToastUtil.show(i18n('anchor_offline_auto_stopped_and_saved', args: {'name': task.nick}));
+        }
+      } catch (_) {}
+    }
+  }
+
   Future<void> _onComplete(LiveRecordTask task, {required bool manuallyStopped}) async {
     log('FFmpeg complete => ${task.taskId}');
     if (task.status == RecordStatus.failed || task.status == RecordStatus.processing) {
@@ -426,7 +454,7 @@ class RecorderController extends GetxService {
 
     final stoppedByUser = manuallyStopped || task.wasStoppedByUser;
 
-    if (task.outputDir != null && task.recordedSeconds > 0) {
+    if (task.outputDir != null && (task.recordedSeconds > 0 || _hasRecordedTsFiles(task.outputDir))) {
       task.status = RecordStatus.processing;
       updateTask(task);
       try {
@@ -459,13 +487,42 @@ class RecorderController extends GetxService {
   }
 
   Future<void> _onFail(LiveRecordTask task, {bool shouldRetry = true}) async {
-    final completer = _lifecycleCompleters[task.taskId];
-    if (completer != null && !completer.isCompleted) {
-      completer.complete();
+    // If recorded files exist, process and finalize the video before reconnecting/failing
+    if (task.outputDir != null && (task.recordedSeconds > 0 || _hasRecordedTsFiles(task.outputDir))) {
+      try {
+        task.status = RecordStatus.processing;
+        updateTask(task);
+        await _processVideo(task);
+      } catch (e) {
+        developer.log('Fail handler convert video error: $e', name: 'RecorderController');
+      }
+    } else {
+      final completer = _lifecycleCompleters[task.taskId];
+      if (completer != null && !completer.isCompleted) {
+        completer.complete();
+      }
     }
+
     if (task.status == RecordStatus.stopped) {
       return;
     }
+
+    // If autoStopOnOffline is enabled, verify if anchor actually went offline
+    if (settings.autoStopOnOffline.value) {
+      try {
+        final room = await Sites.of(task.platform).liveSite.getRoomDetail(roomId: task.roomId, platform: task.platform);
+        task.updateFromRoom(room);
+        final isLiving = room.liveStatus == LiveStatus.live || room.status == true || room.isRecord == true;
+        if (!isLiving) {
+          task.status = RecordStatus.completed;
+          task.retryCount = 0;
+          updateTask(task);
+          ToastUtil.show(i18n('anchor_offline_auto_stopped_and_saved', args: {'name': task.nick}));
+          return;
+        }
+      } catch (_) {}
+    }
+
     if (!task.autoReconnect) {
       task.status = RecordStatus.failed;
       updateTask(task);
@@ -585,6 +642,10 @@ class RecorderController extends GetxService {
 
       if (rssMB > maxMemoryMB * 0.9) {
         developer.log('Memory usage too high', name: 'RecorderController');
+      }
+
+      if (settings.autoStopOnOffline.value) {
+        await _checkRunningTasksForOffline();
       }
     } catch (e) {
       developer.log('_checkResources error: $e', name: 'RecorderController');

@@ -32,6 +32,7 @@ class RecordSettingsController extends GetxController {
   /// 自动重连逻辑
   /// =====================================
   final autoReconnect = hiveBool(RecorderKeys.autoReconnect, RecorderConfig.defaultAutoReconnect);
+  final autoStopOnOffline = hiveBool(RecorderKeys.autoStopOnOffline, RecorderConfig.defaultAutoStopOnOffline);
   final maxRetryCount = RecorderConfig.maxRetryCount.obs;
   final retryDelay = RecorderConfig.retryDelay.obs;
 

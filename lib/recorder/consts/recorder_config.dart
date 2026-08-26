@@ -14,6 +14,8 @@ class RecorderConfig {
 
   static const defaultAutoReconnect = true;
 
+  static const defaultAutoStopOnOffline = true;
+
   static const defaultMaxCacheMB = 1024;
 
   static const defaultEnableCacheLimit = false;
@@ -74,6 +76,16 @@ class RecorderConfig {
   static bool get autoReconnect => HivePrefUtil.getBool(RecorderKeys.autoReconnect) ?? defaultAutoReconnect;
 
   static Future<void> setAutoReconnect(bool value) => HivePrefUtil.setBool(RecorderKeys.autoReconnect, value);
+
+  /// =========================
+  /// 主播下播自动停止录制并保存
+  /// =========================
+
+  static bool get autoStopOnOffline =>
+      HivePrefUtil.getBool(RecorderKeys.autoStopOnOffline) ?? defaultAutoStopOnOffline;
+
+  static Future<void> setAutoStopOnOffline(bool value) =>
+      HivePrefUtil.setBool(RecorderKeys.autoStopOnOffline, value);
 
   /// =========================
   /// 最大缓存

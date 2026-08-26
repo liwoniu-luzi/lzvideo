@@ -1426,7 +1426,7 @@ class PlayerManager {
   }
 
   Widget _buildVideoWidget(UnifiedPlayer player, BoxFit boxFit) {
-    if (currentEngine is MediaKitAdapter) {
+    if (player is MediaKitAdapter || currentEngine == PlayerEngine.mediaKit) {
       return player.getVideoWidget(boxFit);
     }
     return StreamBuilder<List<int?>>(
@@ -1434,7 +1434,7 @@ class PlayerManager {
       builder: (context, snapshot) {
         final data = snapshot.data;
         if (data == null || data.length < 2 || data[0] == null || data[1] == null || data[0]! <= 0 || data[1]! <= 0) {
-          return const SizedBox.shrink();
+          return player.getVideoWidget(boxFit);
         }
         final videoWidth = data[0]!.toDouble();
         final videoHeight = data[1]!.toDouble();
