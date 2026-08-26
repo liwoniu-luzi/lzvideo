@@ -1,0 +1,109 @@
+name: lzvideo Build (Android APK)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.0'
+          cache: true
+
+      - name: Configure Android signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p android
+          keytool -genkey -v -keystore "$RUNNER_TEMP/pure-live-release.jks" \
+            -keyalg RSA -keysize 2048 -validity 10000 -alias purelive \
+            -dname "CN=PureLive, OU=PureLive, O=PureLive, L=Unknown, S=Unknown, C=CN" \
+            -storepass purelive123 -keypass purelive123
+
+          echo "storeFile=$RUNNER_TEMP/pure-live-release.jks" > android/key.properties
+          echo "storePassword=purelive123" >> android/key.properties
+          echo "keyPassword=purelive123" >> android/key.properties
+          echo "keyAlias=purelive" >> android/key.properties
+
+      - name: Resolve packages
+        run: flutter pub get
+
+      - name: Generate production AppConfig
+        run: |
+          dart run enven \
+            --env-files .env,.env.prod \
+            --class-name AppConfig
+
+      - name: Build Android release APK
+        run: |
+          flutter build apk \
+            --release \
+            --split-per-abi
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          FULL_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/[`"'"'"']//g')
+          echo "version=${FULL_VERSION%%+*}" >> "$GITHUB_OUTPUT"
+          echo "artifact_version=${FULL_VERSION/+/-}" >> "$GITHUB_OUTPUT"
+
+      - name: Collect APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.artifact_version }}"
+          APK_DIR="build/app/outputs/flutter-apk"
+          mkdir -p dist_android
+          cp "$APK_DIR/app-arm64-v8a-release.apk" "dist_android/lzvideo-${VERSION}-android-arm64-v8a-release.apk" || true
+          cp "$APK_DIR/app-armeabi-v7a-release.apk" "dist_android/lzvideo-${VERSION}-android-armeabi-v7a-release.apk" || true
+          cp "$APK_DIR/app-x86_64-release.apk" "dist_android/lzvideo-${VERSION}-android-x86_64-release.apk" || true
+          ls -lh dist_android/
+
+      - name: Upload Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lzvideo-Android-APKs
+          path: dist_android/
+          retention-days: 14
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
+        with:
+          tag_name: v2.9.8-android
+          name: lzvideo v2.9.8 Android APK
+          body: |
+            ## lzvideo Android 安装包
+            - 修复直播间偶发黑屏问题
+            - 新增主播下播自动停止录制并保存
+          files: |
+            dist_android/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
