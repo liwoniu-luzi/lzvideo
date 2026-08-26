@@ -1,0 +1,197 @@
+name: PureLive Custom Build (Android & Windows)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_android:
+        description: "Build Android APK (arm64/v7a/x64)"
+        required: true
+        type: boolean
+        default: true
+      build_windows:
+        description: "Build Windows Portable ZIP & EXE"
+        required: true
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: custom-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: 3.47.0
+
+jobs:
+  android:
+    name: Build Android APKs
+    if: ${{ github.event_name == 'push' || inputs.build_android }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "25"
+          cache: gradle
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Configure Android signing
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 || secrets.PURELIVE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || secrets.PURELIVE_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || secrets.PURELIVE_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS || secrets.PURELIVE_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$KEYSTORE_BASE64" || -z "$STORE_PASSWORD" || -z "$KEY_PASSWORD" || -z "$KEY_ALIAS" ]]; then
+            echo "Generating auto self-signed keystore for Android build..."
+            keytool -genkey -v -keystore "$RUNNER_TEMP/pure-live-release.jks" \
+              -keyalg RSA -keysize 2048 -validity 10000 -alias purelive \
+              -dname "CN=PureLive, OU=PureLive, O=PureLive, L=Unknown, S=Unknown, C=CN" \
+              -storepass purelive123 -keypass purelive123
+
+            cat > android/key.properties <<EOF
+storeFile=$RUNNER_TEMP/pure-live-release.jks
+storePassword=purelive123
+keyPassword=purelive123
+keyAlias=purelive
+EOF
+          else
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/pure-live-release.jks"
+            cat > android/key.properties <<EOF
+storeFile=$RUNNER_TEMP/pure-live-release.jks
+storePassword=$STORE_PASSWORD
+keyPassword=$KEY_PASSWORD
+keyAlias=$KEY_ALIAS
+EOF
+          fi
+
+      - name: Resolve packages
+        run: flutter pub get
+
+      - name: Generate production AppConfig
+        run: |
+          dart run enven \
+            --env-files .env,.env.prod \
+            --class-name AppConfig
+
+      - name: Build Android release APKs
+        run: |
+          flutter build apk \
+            --release \
+            --split-per-abi
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          FULL_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/[`"'"'"']//g')
+          echo "version=${FULL_VERSION%%+*}" >> "$GITHUB_OUTPUT"
+          echo "artifact_version=${FULL_VERSION/+/-}" >> "$GITHUB_OUTPUT"
+
+      - name: Collect APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.artifact_version }}"
+          APK_DIR="build/app/outputs/flutter-apk"
+          mkdir -p dist_android
+          cp "$APK_DIR/app-arm64-v8a-release.apk" "dist_android/PureLive-${VERSION}-android-arm64-v8a-release.apk" || true
+          cp "$APK_DIR/app-armeabi-v7a-release.apk" "dist_android/PureLive-${VERSION}-android-armeabi-v7a-release.apk" || true
+          cp "$APK_DIR/app-x86_64-release.apk" "dist_android/PureLive-${VERSION}-android-x86_64-release.apk" || true
+          ls -lh dist_android/
+
+      - name: Upload Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: PureLive-Android-APKs
+          path: dist_android/*
+          retention-days: 7
+
+  windows:
+    name: Build Windows Portable & EXE
+    if: ${{ github.event_name == 'push' || inputs.build_windows }}
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Enable Flutter Windows
+        run: flutter config --enable-windows-desktop
+
+      - name: Resolve packages
+        run: flutter pub get
+
+      - name: Generate production AppConfig
+        run: |
+          dart run enven `
+            --env-files .env,.env.prod `
+            --class-name AppConfig
+
+      - name: Get version
+        id: version
+        shell: pwsh
+        run: |
+          $lines = Get-Content pubspec.yaml
+          foreach ($line in $lines) {
+            if ($line -match '^\s*version:\s*(\S+)') {
+              $fullVersion = $matches[1] -replace '[`"''`]', ''
+              $displayVersion = $fullVersion.Split('+')[0]
+              $artifactVersion = $fullVersion.Replace('+', '-')
+              "version=$displayVersion" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+              "artifact_version=$artifactVersion" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+              exit 0
+            }
+          }
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Create Windows portable archive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = "${{ steps.version.outputs.artifact_version }}"
+          $bundle = "build\windows\x64\runner\Release"
+          mkdir dist_windows -Force | Out-Null
+          $portable = "dist_windows\PureLive-$version-windows-x64-portable.zip"
+          $temporary = Join-Path $env:RUNNER_TEMP "pure-live-portable"
+          Remove-Item $temporary -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $temporary -Force | Out-Null
+          Get-ChildItem $bundle -Force |
+            Where-Object {
+              $_.Name -notin @("AppData", "IPTV_CACHE")
+            } |
+            Copy-Item -Destination $temporary -Recurse -Force
+          Compress-Archive `
+            -Path (Join-Path $temporary "*") `
+            -DestinationPath $portable `
+            -CompressionLevel Optimal `
+            -Force
+          Write-Host "Created portable archive: $portable"
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PureLive-Windows-Portable
+          path: dist_windows/*
+          retention-days: 7
