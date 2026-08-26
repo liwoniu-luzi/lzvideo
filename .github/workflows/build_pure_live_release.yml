@@ -46,11 +46,12 @@ on:
 
   push:
     tags:
+      - "v*"
       - "stage-linux-*"
       - "stage-macos-*"
       - "stage-ios-*"
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: manual-build-${{ github.ref }}
   cancel-in-progress: true
@@ -101,8 +102,7 @@ jobs:
     if: >-
       ${{
         always() &&
-        github.event_name == 'workflow_dispatch' &&
-        inputs.build_android &&
+        (github.event_name == 'push' || inputs.build_android) &&
         (needs.quality.result == 'success' || needs.quality.result == 'skipped')
       }}
     runs-on: ubuntu-latest
@@ -225,8 +225,7 @@ EOF
     name: Windows EXE + MSIX + Portable
     if: >-
       ${{ always() &&
-        github.event_name == 'workflow_dispatch' &&
-        inputs.build_windows &&
+        (github.event_name == 'push' || inputs.build_windows) &&
         (needs.quality.result == 'success' || needs.quality.result == 'skipped')
       }}
     needs: quality
