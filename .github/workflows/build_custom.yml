@@ -1,18 +1,7 @@
-name: PureLive Custom Build
+name: lzvideo Build (Windows Portable)
 
 on:
   workflow_dispatch:
-    inputs:
-      build_android:
-        description: 'Build Android APK'
-        required: true
-        type: boolean
-        default: true
-      build_windows:
-        description: 'Build Windows Portable ZIP'
-        required: true
-        type: boolean
-        default: true
   push:
     branches:
       - master
@@ -23,104 +12,9 @@ permissions:
   contents: write
 
 jobs:
-  android:
-    name: Build Android APKs
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' || inputs.build_android == true
-    timeout-minutes: 45
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.47.0'
-          cache: true
-
-      - name: Configure Android signing
-        shell: bash
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        run: |
-          set -euo pipefail
-          mkdir -p android
-          if [[ -z "${KEYSTORE_BASE64:-}" || -z "${STORE_PASSWORD:-}" || -z "${KEY_PASSWORD:-}" || -z "${KEY_ALIAS:-}" ]]; then
-            echo "Generating auto self-signed keystore for Android build..."
-            keytool -genkey -v -keystore "$RUNNER_TEMP/pure-live-release.jks" \
-              -keyalg RSA -keysize 2048 -validity 10000 -alias purelive \
-              -dname "CN=PureLive, OU=PureLive, O=PureLive, L=Unknown, S=Unknown, C=CN" \
-              -storepass purelive123 -keypass purelive123
-
-            echo "storeFile=$RUNNER_TEMP/pure-live-release.jks" > android/key.properties
-            echo "storePassword=purelive123" >> android/key.properties
-            echo "keyPassword=purelive123" >> android/key.properties
-            echo "keyAlias=purelive" >> android/key.properties
-          else
-            echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/pure-live-release.jks"
-            echo "storeFile=$RUNNER_TEMP/pure-live-release.jks" > android/key.properties
-            echo "storePassword=$STORE_PASSWORD" >> android/key.properties
-            echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
-            echo "keyAlias=$KEY_ALIAS" >> android/key.properties
-          fi
-
-      - name: Resolve packages
-        run: flutter pub get
-
-      - name: Generate production AppConfig
-        run: |
-          dart run enven \
-            --env-files .env,.env.prod \
-            --class-name AppConfig
-
-      - name: Build Android release APKs
-        run: |
-          flutter build apk \
-            --release \
-            --split-per-abi
-
-      - name: Get version
-        id: version
-        shell: bash
-        run: |
-          set -euo pipefail
-          FULL_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/[`"'"'"']//g')
-          echo "version=${FULL_VERSION%%+*}" >> "$GITHUB_OUTPUT"
-          echo "artifact_version=${FULL_VERSION/+/-}" >> "$GITHUB_OUTPUT"
-
-      - name: Collect APKs
-        shell: bash
-        run: |
-          set -euo pipefail
-          VERSION="${{ steps.version.outputs.artifact_version }}"
-          APK_DIR="build/app/outputs/flutter-apk"
-          mkdir -p dist_android
-          cp "$APK_DIR/app-arm64-v8a-release.apk" "dist_android/PureLive-${VERSION}-android-arm64-v8a-release.apk" || true
-          cp "$APK_DIR/app-armeabi-v7a-release.apk" "dist_android/PureLive-${VERSION}-android-armeabi-v7a-release.apk" || true
-          cp "$APK_DIR/app-x86_64-release.apk" "dist_android/PureLive-${VERSION}-android-x86_64-release.apk" || true
-          ls -lh dist_android/
-
-      - name: Upload Android Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: PureLive-Android-APKs
-          path: dist_android/
-          retention-days: 7
-
   windows:
     name: Build Windows Portable
     runs-on: windows-latest
-    if: github.event_name == 'push' || inputs.build_windows == true
     timeout-minutes: 35
     steps:
       - name: Checkout repository
@@ -170,8 +64,8 @@ jobs:
           $version = "${{ steps.version.outputs.artifact_version }}"
           $bundle = "build\windows\x64\runner\Release"
           mkdir dist_windows -Force | Out-Null
-          $portable = "dist_windows\PureLive-$version-windows-x64-portable.zip"
-          $temporary = Join-Path $env:RUNNER_TEMP "pure-live-portable"
+          $portable = "dist_windows\lzvideo-$version-windows-x64-portable.zip"
+          $temporary = Join-Path $env:RUNNER_TEMP "lzvideo-portable"
           Remove-Item $temporary -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $temporary -Force | Out-Null
           Get-ChildItem $bundle -Force |
@@ -189,6 +83,24 @@ jobs:
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PureLive-Windows-Portable
+          name: lzvideo-Windows-Portable
           path: dist_windows/
-          retention-days: 7
+          retention-days: 14
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
+        with:
+          tag_name: v2.9.8-windows
+          name: lzvideo v2.9.8 Windows Portable
+          body: |
+            ## lzvideo Windows 绿色便携版
+            - 修复直播间画面偶发黑屏问题
+            - 新增主播下播自动停止录制并合并保存 MP4 视频
+            - 解压即用，独立数据隔离
+          files: |
+            dist_windows/*.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
