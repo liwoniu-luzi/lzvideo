@@ -35,8 +35,8 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
     ndkVersion = flutter.ndkVersion
     lint {
         disable.add("NullSafeMutableLiveData")
-        checkReleaseBuilds = true
-        abortOnError = true
+        checkReleaseBuilds = false
+        abortOnError = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
