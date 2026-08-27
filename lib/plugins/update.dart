@@ -11,25 +11,9 @@ Future<bool> requestStorageInstallPermission() async {
   return true;
 }
 
-final List<String> mirrors = [
-  'https://gh-proxy.org/',
-  'https://gh.h233.eu.org/',
-  'https://git.yylx.win/',
-  'https://ghproxy.cc/',
-  'https://cdn.gh-proxy.org/',
-  'https://wget.la/',
-  'https://github.ednovas.xyz/',
-  'https://down.npee.cn/?',
-  'https://slink.ltd/',
-  'https://gitproxy.click/',
-];
-
 List<String> getMirrorUrls(String apkUrl, {bool githubOriginOnly = false}) {
   if (apkUrl.trim().isEmpty) return const [];
-  if (githubOriginOnly) return [apkUrl];
-  final mirrorsUrl = mirrors.map((e) => '$e$apkUrl').toList();
-  mirrorsUrl.add(apkUrl);
-  return mirrorsUrl.toSet().toList(growable: false);
+  return [apkUrl];
 }
 
 Future<void> downloadAndInstallApk(String apkUrl, {String? fileName}) async {

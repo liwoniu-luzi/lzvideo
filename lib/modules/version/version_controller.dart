@@ -8,14 +8,15 @@ class ReleaseAssetUrls {
   final String version;
   final int buildNumber;
 
-  String get releaseBase => '$projectUrl/releases/download/v$version';
-  String get androidArm64 => '$releaseBase/PureLive-$version-$buildNumber-android-arm64-v8a-release.apk';
-  String get androidArmeabiV7a => '$releaseBase/PureLive-$version-$buildNumber-android-armeabi-v7a-release.apk';
-  String get androidX8664 => '$releaseBase/PureLive-$version-$buildNumber-android-x86_64-release.apk';
-  String get windowsSetup => '$releaseBase/PureLive-$version-$buildNumber-windows-x64-setup.exe';
-  String get windowsMsix => '$releaseBase/PureLive-$version-$buildNumber-windows-x64.msix';
-  String get windowsPortable => '$releaseBase/PureLive-$version-$buildNumber-windows-x64-portable.zip';
-  String get macosUniversal => '$releaseBase/PureLive-$version-$buildNumber-macos-universal.zip';
+  String get releaseBase => '$projectUrl/releases/download/v2.9.8-android';
+  String get windowsReleaseBase => '$projectUrl/releases/download/v2.9.8-windows';
+  String get androidArm64 => '$releaseBase/lzvideo-$version-$buildNumber-android-arm64-v8a-release.apk';
+  String get androidArmeabiV7a => '';
+  String get androidX8664 => '';
+  String get windowsSetup => '';
+  String get windowsMsix => '';
+  String get windowsPortable => '$windowsReleaseBase/lzvideo-$version-$buildNumber-windows-x64-portable.zip';
+  String get macosUniversal => '';
 }
 
 class VersionController extends GetxController {
@@ -81,26 +82,23 @@ class VersionController extends GetxController {
     // Android
     // =====================================================
 
-    final androidAbis = VersionUtil.latestAndroidAbis;
-    androidArmeabiV7aUrl.value = androidAbis.contains('armeabi-v7a') ? assets.androidArmeabiV7a : '';
-    androidArm64Url.value = androidAbis.contains('arm64-v8a') ? assets.androidArm64 : '';
-    androidX8664Url.value = androidAbis.contains('x86_64') ? assets.androidX8664 : '';
+    androidArmeabiV7aUrl.value = '';
+    androidArm64Url.value = assets.androidArm64;
+    androidX8664Url.value = '';
 
     // =====================================================
     // Windows
     // =====================================================
 
-    windowsSetupUrl.value = assets.windowsSetup;
-    // MSIX requires a matching publisher certificate. Only advertise it when
-    // the release feed explicitly confirms that the signed asset was uploaded.
-    windowsMsixUrl.value = VersionUtil.latestWindowsMsixAvailable ? assets.windowsMsix : '';
+    windowsSetupUrl.value = '';
+    windowsMsixUrl.value = '';
     windowsPortableUrl.value = assets.windowsPortable;
 
     // =====================================================
     // macOS
     // =====================================================
 
-    macosUrl.value = assets.macosUniversal;
+    macosUrl.value = '';
 
     loading.value = false;
   }

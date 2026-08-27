@@ -31,14 +31,6 @@ class VersionPage extends GetView<VersionController> {
                 icon: Remix.android_line,
                 children: [
                   _buildDownloadSection(context, title: i18n("arch_arm64"), urls: controller.androidArm64Url.value),
-                  const SizedBox(height: 16),
-                  _buildDownloadSection(
-                    context,
-                    title: i18n("arch_arm32"),
-                    urls: controller.androidArmeabiV7aUrl.value,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildDownloadSection(context, title: i18n("arch_x86_64"), urls: controller.androidX8664Url.value),
                 ],
               ),
               const SizedBox(height: 24),
@@ -50,16 +42,6 @@ class VersionPage extends GetView<VersionController> {
                 subtitle: i18n("windows_desc"),
                 icon: Remix.windows_line,
                 children: [
-                  _buildDownloadSection(context, title: i18n("exe_installer"), urls: controller.windowsSetupUrl.value),
-                  const SizedBox(height: 16),
-                  if (controller.windowsMsixUrl.value.isNotEmpty) ...[
-                    _buildDownloadSection(
-                      context,
-                      title: i18n("msix_installer"),
-                      urls: controller.windowsMsixUrl.value,
-                    ),
-                    const SizedBox(height: 16),
-                  ],
                   _buildDownloadSection(
                     context,
                     title: i18n("portable_package"),
@@ -68,18 +50,6 @@ class VersionPage extends GetView<VersionController> {
                 ],
               ),
               const SizedBox(height: 24),
-            ],
-            if (PlatformUtils.isMacOS) ...[
-              _buildPlatformCard(
-                context,
-                title: "macOS",
-                subtitle: i18n("macos_desc"),
-                icon: Remix.macbook_line,
-                children: [
-                  _buildDownloadSection(context, title: i18n("macos_package"), urls: controller.macosUrl.value),
-                ],
-              ),
-              const SizedBox(height: 20),
             ],
 
             context.buildGroupTitle(i18n("update_log")),
@@ -265,9 +235,7 @@ class VersionPage extends GetView<VersionController> {
                         onPressed: () => _showActionDialog(context, title, mirrorUrls[i], i + 1),
                         icon: const Icon(Remix.link_m, size: 14),
                         label: Text(
-                          githubOriginOnly
-                              ? i18n('github_origin_source')
-                              : i18n("download_source", args: {"num": "${i + 1}"}),
+                          i18n('github_origin_source'),
                           style: AppTextStyles.t12.copyWith(fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

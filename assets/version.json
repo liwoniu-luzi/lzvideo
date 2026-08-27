@@ -1,61 +1,33 @@
 {
   "version": "2.9.8",
   "build_number": 4092,
-  "version_num": 300044092,
+  "version_num": 2000984092,
   "android_abis": [
-    "armeabi-v7a",
-    "arm64-v8a",
-    "x86_64"
+    "arm64-v8a"
   ],
-  "version_desc": "- 修正移动端比例。\n- 设置-> 视频添加沉沁选择。\n- 优化返回处理。\n- 增加小屏选择其他直播间。",
+  "version_desc": "- 修复直播间画面偶发黑屏问题\n- 新增主播下播自动停止录制并合并保存视频\n- 简化下载源为项目官方直链",
   "prerelease": false,
-  "download_url": "https://github.com/liuchuancong/pure_live/releases/tag/v3.0.4",
+  "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases",
   "platforms": {
     "android": {
-      "version": "3.0.4",
+      "version": "2.9.8",
       "build_number": 4092,
-      "version_num": 300044092,
-      "version_desc": "- 修正移动端比例。\n- 设置-> 视频添加沉沁选择。\n- 优化返回处理。\n- 增加小屏选择其他直播间。",
+      "version_num": 2000984092,
+      "version_desc": "- 修复直播间画面偶发黑屏问题\n- 新增主播下播自动停止录制并合并保存视频\n- 简化下载源为项目官方直链",
       "prerelease": false,
-      "download_url": "https://github.com/liuchuancong/pure_live/releases/tag/v3.0.4",
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v2.9.8-android",
       "android_abis": [
-        "armeabi-v7a",
-        "arm64-v8a",
-        "x86_64"
+        "arm64-v8a"
       ]
     },
     "windows": {
-      "version": "3.0.4",
+      "version": "2.9.8",
       "build_number": 4092,
-      "version_num": 300004092,
-      "version_desc": "- 修正移动端比例。\n- 设置-> 视频添加沉沁选择。\n- 优化返回处理。\n- 增加小屏选择其他直播间。",
+      "version_num": 2000984092,
+      "version_desc": "- 修复直播间画面偶发黑屏问题\n- 新增主播下播自动停止录制并合并保存视频\n- 简化下载源为项目官方直链",
       "prerelease": false,
-      "download_url": "https://github.com/liuchuancong/pure_live/releases/tag/v3.0.4",
-      "windows_msix_available": true
-    },
-    "linux": {
-      "version": "3.0.4",
-      "build_number": 4092,
-      "version_num": 300004092,
-      "version_desc": "- 修正移动端比例。\n- 设置-> 视频添加沉沁选择。\n- 优化返回处理。\n- 增加小屏选择其他直播间。",
-      "prerelease": false,
-      "download_url": "https://github.com/liuchuancong/pure_live/releases/tag/v3.0.4"
-    },
-    "macos": {
-      "version": "3.0.4",
-      "build_number": 4092,
-      "version_num": 300004092,
-      "version_desc": "- 修正移动端比例。\n- 设置-> 视频添加沉沁选择。\n- 优化返回处理。\n- 增加小屏选择其他直播间。",
-      "prerelease": false,
-      "download_url": "https://github.com/liuchuancong/pure_live/releases/tag/v3.0.4"
-    },
-    "ios": {
-      "version": "3.0.4",
-      "build_number": 4092,
-      "version_num": 300004092,
-      "version_desc": "- 修正移动端比例。\n- 设置-> 视频添加沉沁选择。\n- 优化返回处理。\n- 增加小屏选择其他直播间。",
-      "prerelease": false,
-      "download_url": "https://github.com/liuchuancong/pure_live/releases/tag/v3.0.4"
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v2.9.8-windows",
+      "windows_msix_available": false
     }
   }
 }
