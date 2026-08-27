@@ -21,7 +21,7 @@ class VersionUtil {
   static final String updateRepository = AppConfig.pureliveUpdateRepository;
   static final String projectUrl = 'https://github.com/$updateOwner/$updateRepository';
   static final String issuesUrl = '$projectUrl/issues';
-  static const String githubUrl = 'https://github.com/liuchuancong';
+  static final String githubUrl = 'https://github.com/$updateOwner';
 
   static const String email = '17792321552@163.com';
   static const String emailUrl = 'mailto:17792321552@163.com?subject=PureLive Feedback';
