@@ -1,32 +1,32 @@
 {
-  "version": "3.0.5",
-  "build_number": 4093,
-  "version_num": 300054093,
+  "version": "3.0.6",
+  "build_number": 4094,
+  "version_num": 300064094,
   "android_abis": [
     "arm64-v8a"
   ],
-  "version_desc": "- 测试新版本推送机制成功接入\n- 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链\n- 修复直播间偶发黑屏与下播自动停止录制保存",
+  "version_desc": "- 修复播放器全屏时不自动横屏的问题\n- 优化视频流宽高与横竖屏智能自适应切换",
   "prerelease": false,
   "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases",
   "platforms": {
     "android": {
-      "version": "3.0.5",
-      "build_number": 4093,
-      "version_num": 300054093,
-      "version_desc": "- 测试新版本推送机制成功接入\n- 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链\n- 修复直播间偶发黑屏与下播自动停止录制保存",
+      "version": "3.0.6",
+      "build_number": 4094,
+      "version_num": 300064094,
+      "version_desc": "- 修复播放器全屏时不自动横屏的问题\n- 优化视频流宽高与横竖屏智能自适应切换",
       "prerelease": false,
-      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.5-android",
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.6-android",
       "android_abis": [
         "arm64-v8a"
       ]
     },
     "windows": {
-      "version": "3.0.5",
-      "build_number": 4093,
-      "version_num": 300054093,
-      "version_desc": "- 测试新版本推送机制成功接入\n- 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链\n- 修复直播间偶发黑屏与下播自动停止录制保存",
+      "version": "3.0.6",
+      "build_number": 4094,
+      "version_num": 300064094,
+      "version_desc": "- 修复播放器全屏时不自动横屏的问题\n- 优化视频流宽高与横竖屏智能自适应切换",
       "prerelease": false,
-      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.5-windows",
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.6-windows",
       "windows_msix_available": false
     }
   }

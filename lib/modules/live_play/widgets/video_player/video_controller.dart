@@ -974,6 +974,13 @@ class VideoController with ChangeNotifier implements DanmakuSettingsBinding {
 
   Future<void> enterFullScreen() async {
     await WindowService().doEnterFullScreen();
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (_playerManager.isVerticalVideo.value) {
+        await WindowService().verticalScreen();
+      } else {
+        await WindowService().landScape();
+      }
+    }
     GlobalPlayerState.to.isFullscreen.value = true;
   }
 

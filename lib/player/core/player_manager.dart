@@ -418,6 +418,7 @@ class PlayerManager {
     final roomChanged = room != currentFloatRoom;
     if (roomChanged) {
       lineManager.reset();
+      isVerticalVideo.value = false;
     }
     if (_currentPlayer == null || _runtimeEngine == null) {
       if (_defaultEngine == null) {
@@ -1639,13 +1640,25 @@ class PlayerManager {
     _subscriptions.add(
       player.width.listen((event) {
         _widthSubject.add(event);
+        _updateVerticalVideoStatus();
       }),
     );
     _subscriptions.add(
       player.height.listen((event) {
         _heightSubject.add(event);
+        _updateVerticalVideoStatus();
       }),
     );
+  }
+
+  void _updateVerticalVideoStatus() {
+    final w = _widthSubject.value;
+    final h = _heightSubject.value;
+    if (w != null && h != null && w > 0 && h > 0) {
+      isVerticalVideo.value = (w / h) < 0.95;
+    } else {
+      isVerticalVideo.value = false;
+    }
   }
 
   Future<void> _clearSubscriptions() async {

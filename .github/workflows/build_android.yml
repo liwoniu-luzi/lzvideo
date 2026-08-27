@@ -104,9 +104,8 @@ jobs:
           name: lzvideo v${{ steps.version.outputs.version }}
           body: |
             ## lzvideo v${{ steps.version.outputs.version }}
-            - 修复直播间偶发黑屏问题
-            - 新增主播下播自动停止录制并保存
-            - 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链
+            - 修复播放器全屏时不自动横屏的问题
+            - 优化视频流宽高与横竖屏智能自适应切换
           files: |
             dist_android/*.apk
           draft: false
