@@ -157,8 +157,7 @@ class VersionPage extends GetView<VersionController> {
   }
 
   Widget _buildDownloadSection(BuildContext context, {required String title, required String urls}) {
-    final githubOriginOnly = SettingsService.to.app.useGitHubOriginForUpdates.v;
-    final List<String> mirrorUrls = getMirrorUrls(urls, githubOriginOnly: githubOriginOnly);
+    final List<String> mirrorUrls = getMirrorUrls(urls);
 
     if (mirrorUrls.isEmpty) {
       return const SizedBox.shrink();

@@ -17,11 +17,11 @@ class VersionUtil {
   /// release feed without editing runtime code. This repository defaults to
   /// the liuchuancong maintenance release channel so its bundled version.json and generated asset
   /// URLs always describe the same published artifacts.
-  static final String updateOwner = AppConfig.pureliveUpdateOwner;
-  static final String updateRepository = AppConfig.pureliveUpdateRepository;
-  static final String projectUrl = 'https://github.com/$updateOwner/$updateRepository';
-  static final String issuesUrl = '$projectUrl/issues';
-  static final String githubUrl = 'https://github.com/$updateOwner';
+  static String get updateOwner => AppConfig.pureliveUpdateOwner;
+  static String get updateRepository => AppConfig.pureliveUpdateRepository;
+  static String get projectUrl => 'https://github.com/$updateOwner/$updateRepository';
+  static String get issuesUrl => '$projectUrl/issues';
+  static String get githubUrl => 'https://github.com/$updateOwner';
 
   static const String email = '17792321552@163.com';
   static const String emailUrl = 'mailto:17792321552@163.com?subject=PureLive Feedback';
@@ -29,9 +29,9 @@ class VersionUtil {
   static const String telegramGroup = 't.me/pure_live_channel';
   static const String telegramGroupUrl = 'https://t.me/pure_live_channel';
 
-  static final String releaseUrl = 'https://api.github.com/repos/$updateOwner/$updateRepository/releases?per_page=30';
+  static String get releaseUrl => 'https://api.github.com/repos/$updateOwner/$updateRepository/releases?per_page=30';
 
-  static final GitHubMirror mirror = GitHubMirror(owner: updateOwner, repo: updateRepository, branch: 'master');
+  static GitHubMirror get mirror => GitHubMirror(owner: updateOwner, repo: updateRepository, branch: 'master');
 
   static List<String> get _versionUrls => [mirror.rawUrl('assets/version.json')];
 
