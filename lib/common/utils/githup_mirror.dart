@@ -5,23 +5,18 @@ class GitHubMirror {
 
   GitHubMirror({required this.owner, required this.repo, this.branch = 'master'});
 
-  /// 单个文件路径生成
+  /// Cloudflare 专属极速代理直链
   String rawUrl(String filePath) {
+    return 'https://gh.lz1861.ccwu.cc/https://raw.githubusercontent.com/$owner/$repo/$branch/$filePath';
+  }
+
+  /// 官方直链
+  String officialRawUrl(String filePath) {
     return 'https://raw.githubusercontent.com/$owner/$repo/$branch/$filePath';
   }
 
-  /// jsdelivr CDN
-  String jsdelivr(String filePath) {
-    return 'https://cdn.jsdelivr.net/gh/$owner/$repo@$branch/$filePath';
-  }
-
-  /// fastly CDN
-  String jsdelivrFastly(String filePath) {
-    return 'https://fastly.jsdelivr.net/gh/$owner/$repo@$branch/$filePath';
-  }
-
-  /// 生成官方直链（无第三方镜像）
+  /// 生成镜像（优先 Cloudflare 极速代理，回退官方直链）
   List<String> mirrors(String filePath) {
-    return [rawUrl(filePath)];
+    return [rawUrl(filePath), officialRawUrl(filePath)];
   }
 }

@@ -49,8 +49,8 @@ class _VersionHistoryPageState extends State<VersionHistoryPage> with SingleTick
       historyLoading.value = true;
       historyError.value = false;
       final mirror = GitHubMirror(
-        owner: AppConfig.pureliveUpdateOwner,
-        repo: AppConfig.pureliveUpdateRepository,
+        owner: VersionUtil.updateOwner,
+        repo: VersionUtil.updateRepository,
         branch: 'master',
       );
       final timestamp = DateTime.now().millisecondsSinceEpoch;

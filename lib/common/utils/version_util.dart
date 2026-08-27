@@ -33,7 +33,7 @@ class VersionUtil {
 
   static GitHubMirror get mirror => GitHubMirror(owner: updateOwner, repo: updateRepository, branch: 'master');
 
-  static List<String> get _versionUrls => [mirror.rawUrl('assets/version.json')];
+  static List<String> get _versionUrls => [mirror.rawUrl('assets/version.json'), mirror.officialRawUrl('assets/version.json')];
 
   final isHasNewVersion = false.obs;
 
