@@ -79,9 +79,14 @@ jobs:
           VERSION="${{ steps.version.outputs.artifact_version }}"
           APK_DIR="build/app/outputs/flutter-apk"
           mkdir -p dist_android
+          # lzvideo names
           cp "$APK_DIR/app-arm64-v8a-release.apk" "dist_android/lzvideo-${VERSION}-android-arm64-v8a-release.apk" || true
           cp "$APK_DIR/app-armeabi-v7a-release.apk" "dist_android/lzvideo-${VERSION}-android-armeabi-v7a-release.apk" || true
           cp "$APK_DIR/app-x86_64-release.apk" "dist_android/lzvideo-${VERSION}-android-x86_64-release.apk" || true
+          # PureLive compatibility aliases for legacy clients
+          cp "$APK_DIR/app-arm64-v8a-release.apk" "dist_android/PureLive-${VERSION}-android-arm64-v8a-release.apk" || true
+          cp "$APK_DIR/app-armeabi-v7a-release.apk" "dist_android/PureLive-${VERSION}-android-armeabi-v7a-release.apk" || true
+          cp "$APK_DIR/app-x86_64-release.apk" "dist_android/PureLive-${VERSION}-android-x86_64-release.apk" || true
           ls -lh dist_android/
 
       - name: Upload Android Artifacts
@@ -95,10 +100,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
         with:
-          tag_name: v${{ steps.version.outputs.version }}-android
-          name: lzvideo v${{ steps.version.outputs.version }} Android APK
+          tag_name: v${{ steps.version.outputs.version }}
+          name: lzvideo v${{ steps.version.outputs.version }}
           body: |
-            ## lzvideo v${{ steps.version.outputs.version }} Android 手机安装包
+            ## lzvideo v${{ steps.version.outputs.version }}
             - 修复直播间偶发黑屏问题
             - 新增主播下播自动停止录制并保存
             - 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链
