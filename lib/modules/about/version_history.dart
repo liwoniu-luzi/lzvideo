@@ -48,11 +48,13 @@ class _VersionHistoryPageState extends State<VersionHistoryPage> with SingleTick
     try {
       historyLoading.value = true;
       historyError.value = false;
-      final mirror = GitHubMirror(owner: 'liuchuancong', repo: 'pure_live', branch: 'master');
+      final mirror = GitHubMirror(
+        owner: AppConfig.pureliveUpdateOwner,
+        repo: AppConfig.pureliveUpdateRepository,
+        branch: 'master',
+      );
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final sourceUrls = SettingsService.to.app.useGitHubOriginForUpdates.v
-          ? [mirror.rawUrl('assets/releases.json')]
-          : mirror.mirrors('assets/releases.json');
+      final sourceUrls = [mirror.rawUrl('assets/releases.json')];
       final urls = sourceUrls.map((e) => '$e?ts=$timestamp').toList();
       final url = await RaceHttp.findFastestUrl(urls);
       if (url == null) {
