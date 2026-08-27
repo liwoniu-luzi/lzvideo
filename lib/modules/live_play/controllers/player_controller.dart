@@ -304,7 +304,9 @@ class PlayerController extends GetxController {
 
   Future<void> _setDefaultResolution(List<LivePlayQuality> playQualites, {required bool Function() isCurrent}) async {
     String userPrefer;
-    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    final List<ConnectivityResult> connectivityResult = PlatformUtils.isDesktop
+        ? <ConnectivityResult>[ConnectivityResult.ethernet]
+        : await (Connectivity().checkConnectivity());
     if (!isCurrent()) return;
 
     if (connectivityResult.contains(ConnectivityResult.mobile)) {

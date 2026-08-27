@@ -94,6 +94,11 @@ class NewVersionDialog extends StatelessWidget {
                   final buildNumber = VersionUtil.latestBuildNumber ?? 0;
                   final apkUrl = 'https://gh.lz1861.ccwu.cc/${VersionUtil.projectUrl}/releases/download/v$version/lzvideo-$version-$buildNumber-android-arm64-v8a-release.apk';
                   downloadAndInstallApk(apkUrl, fileName: 'lzvideo-$version-$buildNumber-android-arm64-v8a-release.apk');
+                } else if (Platform.isWindows) {
+                  final version = VersionUtil.latestVersion;
+                  final buildNumber = VersionUtil.latestBuildNumber ?? 0;
+                  final winUrl = 'https://gh.lz1861.ccwu.cc/${VersionUtil.projectUrl}/releases/download/v$version/lzvideo-$version-$buildNumber-windows-x64-portable.zip';
+                  downloadAndInstallApk(winUrl, fileName: 'lzvideo-$version-$buildNumber-windows-x64-portable.zip');
                 } else {
                   Get.toNamed(RoutePath.kVersionPage);
                 }

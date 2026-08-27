@@ -6,6 +6,7 @@ import 'package:path/path.dart' as path;
 import 'package:open_filex/open_filex.dart';
 import 'package:pure_live/common/index.dart';
 import 'package:pure_live/plugins/file_utils.dart';
+import 'package:pure_live/plugins/windows_updater.dart';
 import 'package:pure_live/common/global/platform_utils.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
 
@@ -107,25 +108,32 @@ class _DownloadApkDialogState extends State<DownloadApkDialog> {
         }
         await OpenFilex.open(file.path);
       } else if (PlatformUtils.isDesktop) {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context, true);
-        }
-
-        final result = await OpenFilex.open(file.path);
-
-        if (PlatformUtils.isDesktopNotMac) {
-          if (await windowManager.isPreventClose()) {
-            await windowManager.setPreventClose(false);
+        if (Platform.isWindows && file.path.endsWith('.zip')) {
+          setState(() {
+            _statusText = '正在自动替换文件并重启软件...';
+          });
+          await WindowsSelfUpdater.applyUpdateAndRestart(file);
+        } else {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context, true);
           }
-          exit(0);
-        }
 
-        if (result.type != ResultType.done) {
-          Get.snackbar(
-            i18n('install_failed'),
-            i18n('check_unknown_sources_permission', args: {'msg': result.message}),
-            snackPosition: SnackPosition.bottom,
-          );
+          final result = await OpenFilex.open(file.path);
+
+          if (PlatformUtils.isDesktopNotMac) {
+            if (await windowManager.isPreventClose()) {
+              await windowManager.setPreventClose(false);
+            }
+            exit(0);
+          }
+
+          if (result.type != ResultType.done) {
+            Get.snackbar(
+              i18n('install_failed'),
+              i18n('check_unknown_sources_permission', args: {'msg': result.message}),
+              snackPosition: SnackPosition.bottom,
+            );
+          }
         }
       }
     } catch (e) {

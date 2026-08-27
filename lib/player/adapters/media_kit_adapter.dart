@@ -38,7 +38,9 @@ class MediaKitAdapter implements UnifiedPlayer, MediaKitPlayerAccessor {
   static Future<void> applyNativeLiveProperties(dynamic native) async {
     await native.setProperty('force-seekable', 'yes');
 
-    await native.setProperty('protocol_whitelist', 'httpproxy,udp,rtp,tcp,tls,data,file,http,https,crypto');
+    await native.setProperty('protocol_whitelist', 'httpproxy,udp,rtp,tcp,tls,data,file,http,https,crypto,hls,flv,rtmp,rtmpt,rtmps,concat,sub,lavf,ffmpeg,pipe,async');
+
+    await native.setProperty('user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36');
 
     await native.setProperty('demuxer-lavf-probesize', '2097152');
 
