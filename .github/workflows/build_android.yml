@@ -95,12 +95,13 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
         with:
-          tag_name: v2.9.8-android
-          name: lzvideo v2.9.8 Android APK
+          tag_name: v${{ steps.version.outputs.version }}-android
+          name: lzvideo v${{ steps.version.outputs.version }} Android APK
           body: |
-            ## lzvideo Android 安装包
+            ## lzvideo v${{ steps.version.outputs.version }} Android 手机安装包
             - 修复直播间偶发黑屏问题
             - 新增主播下播自动停止录制并保存
+            - 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链
           files: |
             dist_android/*.apk
           draft: false

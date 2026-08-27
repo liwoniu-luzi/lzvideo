@@ -8,8 +8,8 @@ class ReleaseAssetUrls {
   final String version;
   final int buildNumber;
 
-  String get releaseBase => '$projectUrl/releases/download/v2.9.8-android';
-  String get windowsReleaseBase => '$projectUrl/releases/download/v2.9.8-windows';
+  String get releaseBase => '$projectUrl/releases/download/v$version-android';
+  String get windowsReleaseBase => '$projectUrl/releases/download/v$version-windows';
   String get androidArm64 => '$releaseBase/lzvideo-$version-$buildNumber-android-arm64-v8a-release.apk';
   String get androidArmeabiV7a => '';
   String get androidX8664 => '';

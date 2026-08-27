@@ -1,32 +1,32 @@
 {
-  "version": "2.9.8",
-  "build_number": 4092,
-  "version_num": 2000984092,
+  "version": "3.0.5",
+  "build_number": 4093,
+  "version_num": 300054093,
   "android_abis": [
     "arm64-v8a"
   ],
-  "version_desc": "- 修复直播间画面偶发黑屏问题\n- 新增主播下播自动停止录制并合并保存视频\n- 简化下载源为项目官方直链",
+  "version_desc": "- 测试新版本推送机制成功接入\n- 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链\n- 修复直播间偶发黑屏与下播自动停止录制保存",
   "prerelease": false,
   "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases",
   "platforms": {
     "android": {
-      "version": "2.9.8",
-      "build_number": 4092,
-      "version_num": 2000984092,
-      "version_desc": "- 修复直播间画面偶发黑屏问题\n- 新增主播下播自动停止录制并合并保存视频\n- 简化下载源为项目官方直链",
+      "version": "3.0.5",
+      "build_number": 4093,
+      "version_num": 300054093,
+      "version_desc": "- 测试新版本推送机制成功接入\n- 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链\n- 修复直播间偶发黑屏与下播自动停止录制保存",
       "prerelease": false,
-      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v2.9.8-android",
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.5-android",
       "android_abis": [
         "arm64-v8a"
       ]
     },
     "windows": {
-      "version": "2.9.8",
-      "build_number": 4092,
-      "version_num": 2000984092,
-      "version_desc": "- 修复直播间画面偶发黑屏问题\n- 新增主播下播自动停止录制并合并保存视频\n- 简化下载源为项目官方直链",
+      "version": "3.0.5",
+      "build_number": 4093,
+      "version_num": 300054093,
+      "version_desc": "- 测试新版本推送机制成功接入\n- 仅保留专属 arm64 架构与 GitHub 官方唯一下载直链\n- 修复直播间偶发黑屏与下播自动停止录制保存",
       "prerelease": false,
-      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v2.9.8-windows",
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.5-windows",
       "windows_msix_available": false
     }
   }

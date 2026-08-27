@@ -91,10 +91,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
         with:
-          tag_name: v2.9.8-windows
-          name: lzvideo v2.9.8 Windows Portable
+          tag_name: v${{ steps.version.outputs.version }}-windows
+          name: lzvideo v${{ steps.version.outputs.version }} Windows Portable
           body: |
-            ## lzvideo Windows 绿色便携版
+            ## lzvideo v${{ steps.version.outputs.version }} Windows 绿色便携版
             - 修复直播间画面偶发黑屏问题
             - 新增主播下播自动停止录制并合并保存 MP4 视频
             - 解压即用，独立数据隔离
