@@ -8,8 +8,8 @@ class ReleaseAssetUrls {
   final String version;
   final int buildNumber;
 
-  String get releaseBase => 'https://gh.lz1861.ccwu.cc/$projectUrl/releases/download/v$version-android';
-  String get windowsReleaseBase => 'https://gh.lz1861.ccwu.cc/$projectUrl/releases/download/v$version-windows';
+  String get releaseBase => 'https://gh.lz1861.ccwu.cc/$projectUrl/releases/download/v$version';
+  String get windowsReleaseBase => 'https://gh.lz1861.ccwu.cc/$projectUrl/releases/download/v$version';
   String get androidArm64 => '$releaseBase/lzvideo-$version-$buildNumber-android-arm64-v8a-release.apk';
   String get androidArmeabiV7a => '';
   String get androidX8664 => '';
