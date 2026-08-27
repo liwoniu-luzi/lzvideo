@@ -105,7 +105,7 @@ class _DownloadApkDialogState extends State<DownloadApkDialog> {
         if (Navigator.canPop(Get.context!)) {
           Navigator.pop(Get.context!, true);
         }
-        await FileUtils.openFileOrUrl(file.parent.path);
+        await OpenFilex.open(file.path);
       } else if (PlatformUtils.isDesktop) {
         if (Navigator.canPop(context)) {
           Navigator.pop(context, true);
