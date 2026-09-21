@@ -68,6 +68,31 @@ jobs:
           echo "version=${FULL_VERSION%%+*}" >> "$GITHUB_OUTPUT"
           echo "artifact_version=${FULL_VERSION/+/-}" >> "$GITHUB_OUTPUT"
 
+      - name: Strict signature fingerprint verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED_CLEAN="1dc44b03c51689ffdcbcf803c1da830cdd8f6bf7febaa688b9ddfe3bb9595e35"
+          APK_FILE="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          
+          echo "========================================================"
+          echo "Verifying APK signing certificate for: $APK_FILE"
+          echo "========================================================"
+          CERT_OUTPUT=$(keytool -printcert -jarfile "$APK_FILE" 2>&1 || true)
+          echo "$CERT_OUTPUT"
+          
+          ACTUAL_SHA256=$(echo "$CERT_OUTPUT" | grep -i "SHA256:" | head -n1 | sed -e 's/.*SHA256: *//' -e 's/ *//g' -e 's/://g' | tr '[:upper:]' '[:lower:]')
+          echo "Extracted SHA256 (clean): $ACTUAL_SHA256"
+          echo "Expected SHA256 (clean):  $EXPECTED_CLEAN"
+          
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_CLEAN" ]; then
+            echo "FATAL: APK release signature fingerprint mismatch! Build aborted to protect user in-place upgrade."
+            echo "Expected: $EXPECTED_CLEAN"
+            echo "Actual:   $ACTUAL_SHA256"
+            exit 1
+          fi
+          echo "SUCCESS: Release signature verified 100% strictly matched fixed keystore!"
+
       - name: Collect APKs
         shell: bash
         run: |
@@ -100,8 +125,10 @@ jobs:
           name: lzvideo v${{ steps.version.outputs.version }}
           body: |
             ## lzvideo v${{ steps.version.outputs.version }}
-            - 修复播放器全屏时不自动横屏的问题
-            - 优化视频流宽高与横竖屏智能自适应切换
+            - 修复看直播时经常自动异常暂停的问题
+            - 优化直播流预读缓冲与 mpv 缓冲策略，提升网络抖动抗性
+            - 新增非预期暂停智能自动恢复看门狗机制
+            - 🔒 严格强制固化 Release 签名门禁 (SHA256: 1dc44b03...)，保证后续永久无缝覆盖升级
           files: |
             dist_android/*.apk
           draft: false
