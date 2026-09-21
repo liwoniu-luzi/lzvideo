@@ -132,6 +132,10 @@ class PlayerManager {
   bool _disposed = false;
   bool _isSwitchingDueToFallback = false;
   bool _isHandlingError = false;
+  bool _userPaused = false;
+  Timer? _autoResumeTimer;
+  int _consecutiveAutoResumeCount = 0;
+  static const int _maxAutoResumeAttempts = 3;
   static const String _floatTag = "global_video_player";
   Timer? _hideTimer;
   Timer? _geometryObservationTimer;
@@ -409,6 +413,9 @@ class PlayerManager {
     bool audioOnly = false,
   }) async {
     if (_disposed) return;
+    _userPaused = false;
+    _consecutiveAutoResumeCount = 0;
+    _cancelAutoResume();
     _audioModeVideoWarmTimer?.cancel();
     _audioModeVideoWarmTimer = null;
     isVideoRestorePending.value = false;
@@ -822,8 +829,64 @@ class PlayerManager {
     }
   }
 
-  Future<void> pause() async => await _currentPlayer?.pause();
-  Future<void> resume() async => await _currentPlayer?.play();
+  void _cancelAutoResume() {
+    _autoResumeTimer?.cancel();
+    _autoResumeTimer = null;
+  }
+
+  void _scheduleAutoResumeIfNeeded() {
+    if (_userPaused || _disposed || _isClosing || _currentPlayer == null) return;
+    if (_currentUrl == null || hasError.value) return;
+
+    _cancelAutoResume();
+    _autoResumeTimer = Timer(const Duration(milliseconds: 1000), () async {
+      _autoResumeTimer = null;
+      if (_userPaused || _disposed || _isClosing || _currentPlayer == null) return;
+      if (_playingSubject.value) return;
+
+      if (_consecutiveAutoResumeCount < _maxAutoResumeAttempts) {
+        _consecutiveAutoResumeCount++;
+        log(
+          'Live stream paused unexpectedly, auto-resuming (attempt $_consecutiveAutoResumeCount)...',
+          name: 'PlayerManager',
+        );
+        try {
+          await _currentPlayer?.play();
+        } catch (e) {
+          log('Auto-resume error: $e', name: 'PlayerManager');
+        }
+      } else {
+        log(
+          'Live stream stalled after multiple auto-resume attempts, triggering reconnect...',
+          name: 'PlayerManager',
+        );
+        _consecutiveAutoResumeCount = 0;
+        if (!_isHandlingError) {
+          unawaited(
+            _handleError(
+              PlayerException(
+                message: 'Live stream stalled',
+                type: PlayerErrorType.network,
+              ),
+            ),
+          );
+        }
+      }
+    });
+  }
+
+  Future<void> pause() async {
+    _userPaused = true;
+    _cancelAutoResume();
+    await _currentPlayer?.pause();
+  }
+
+  Future<void> resume() async {
+    _userPaused = false;
+    _consecutiveAutoResumeCount = 0;
+    _cancelAutoResume();
+    await _currentPlayer?.play();
+  }
 
   Future<void> stop() async {
     await close();
@@ -1460,6 +1523,7 @@ class PlayerManager {
   }
 
   Future<void> _closeInternal() async {
+    _cancelAutoResume();
     _audioModeVideoWarmTimer?.cancel();
     _audioModeVideoWarmTimer = null;
     _pendingRoomReentry = null;
@@ -1496,6 +1560,7 @@ class PlayerManager {
   }
 
   Future<void> _hardDisposeInternal() async {
+    _cancelAutoResume();
     _sessionId++;
     lineManager.reset();
     await _clearSubscriptions();
@@ -1602,6 +1667,8 @@ class PlayerManager {
       player.onPlaying.listen((event) async {
         _playingSubject.add(event);
         if (event) {
+          _cancelAutoResume();
+          _consecutiveAutoResumeCount = 0;
           hasError.value = false;
           _stateSubject.add(PlayerState.playing);
           if (_isSwitchingDueToFallback) {
@@ -1609,14 +1676,21 @@ class PlayerManager {
           }
         } else {
           _stateSubject.add(PlayerState.paused);
+          _scheduleAutoResumeIfNeeded();
         }
       }),
     );
     _subscriptions.add(
       player.onLoading.listen((event) {
         _loadingSubject.add(event);
-        if (event && _stateSubject.value != PlayerState.buffering) {
-          _stateSubject.add(PlayerState.buffering);
+        if (event) {
+          if (_stateSubject.value != PlayerState.buffering) {
+            _stateSubject.add(PlayerState.buffering);
+          }
+        } else {
+          if (!_playingSubject.value && !_userPaused) {
+            _scheduleAutoResumeIfNeeded();
+          }
         }
       }),
     );
@@ -1674,6 +1748,7 @@ class PlayerManager {
     _disposed = true;
     _sessionId++;
     _isClosing = true;
+    _cancelAutoResume();
     _hideTimer?.cancel();
     _geometryObservationTimer?.cancel();
     _geometryStabilityTimer?.cancel();

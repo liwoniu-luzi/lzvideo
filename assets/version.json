@@ -1,32 +1,32 @@
 {
-  "version": "3.0.6",
-  "build_number": 4094,
-  "version_num": 300064094,
+  "version": "3.0.7",
+  "build_number": 4095,
+  "version_num": 300074095,
   "android_abis": [
     "arm64-v8a"
   ],
-  "version_desc": "- 修复播放器全屏时不自动横屏的问题\n- 优化视频流宽高与横竖屏智能自适应切换",
+  "version_desc": "- 修复看直播时经常自动异常暂停的问题\n- 优化直播流预读缓冲与 mpv 缓冲策略，提升网络抖动抗性\n- 新增非预期暂停智能自动恢复看门狗机制",
   "prerelease": false,
   "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases",
   "platforms": {
     "android": {
-      "version": "3.0.6",
-      "build_number": 4094,
-      "version_num": 300064094,
-      "version_desc": "- 修复播放器全屏时不自动横屏的问题\n- 优化视频流宽高与横竖屏智能自适应切换",
+      "version": "3.0.7",
+      "build_number": 4095,
+      "version_num": 300074095,
+      "version_desc": "- 修复看直播时经常自动异常暂停的问题\n- 优化直播流预读缓冲与 mpv 缓冲策略，提升网络抖动抗性\n- 新增非预期暂停智能自动恢复看门狗机制",
       "prerelease": false,
-      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.6-android",
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.7-android",
       "android_abis": [
         "arm64-v8a"
       ]
     },
     "windows": {
-      "version": "3.0.6",
-      "build_number": 4094,
-      "version_num": 300064094,
-      "version_desc": "- 修复播放器全屏时不自动横屏的问题\n- 优化视频流宽高与横竖屏智能自适应切换",
+      "version": "3.0.7",
+      "build_number": 4095,
+      "version_num": 300074095,
+      "version_desc": "- 修复看直播时经常自动异常暂停的问题\n- 优化直播流预读缓冲与 mpv 缓冲策略，提升网络抖动抗性\n- 新增非预期暂停智能自动恢复看门狗机制",
       "prerelease": false,
-      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.6-windows",
+      "download_url": "https://github.com/liwoniu-luzi/lzvideo/releases/tag/v3.0.7-windows",
       "windows_msix_available": false
     }
   }

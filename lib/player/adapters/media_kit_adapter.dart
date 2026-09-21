@@ -59,6 +59,10 @@ class MediaKitAdapter implements UnifiedPlayer, MediaKitPlayerAccessor {
 
     await native.setProperty('network-timeout', '15');
 
+    // 直播流策略：缓冲饥饿时不进入永久暂停，新数据到达时自动继续播放
+    await native.setProperty('cache-pause', 'no');
+    await native.setProperty('cache-pause-wait', '1');
+
     if (SettingsService.to.player.customPlayerOutput.v) {
       await native.setProperty('ao', SettingsService.to.player.audioOutputDriver.v);
     } else if (PlatformUtils.isLinux) {
